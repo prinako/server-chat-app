@@ -1,2 +1,2 @@
-# special-memory
+# server-chat-app
 server for chat-app
