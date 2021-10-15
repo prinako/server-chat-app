@@ -1,9 +1,13 @@
+
+require('dotenv').config()
+
 const express = require("express");
 const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server, {
+
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.APP_CONNECT,
   },
 });
 
@@ -13,10 +17,10 @@ io.on("connection", (socket) => {
   socket.join(id);
   socket.on("send-message", ({ recipients, text }) => {
     recipients.forEach((recipient) => {
-      const newReceipients = recipient.filter((r) => r !== recipient);
+      const newReceipients = recipients.filter((r) => r !== recipient);
       newReceipients.push(id);
       socket.broadcast.to(recipient).emit("receive-message", {
-        recipients: newReceipient,
+        recipients: newReceipients,
         sender: id,
         text,
       });
