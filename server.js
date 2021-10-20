@@ -1,11 +1,9 @@
-
-require('dotenv').config()
+require("dotenv").config();
 
 const express = require("express");
 const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server, {
-
   cors: {
     origin: process.env.APP_CONNECT,
   },
@@ -13,7 +11,6 @@ const io = require("socket.io")(server, {
 
 io.on("connection", (socket) => {
   const id = socket.handshake.query.id;
-  console.log(id);
   socket.join(id);
   socket.on("send-message", ({ recipients, text }) => {
     recipients.forEach((recipient) => {
@@ -23,6 +20,18 @@ io.on("connection", (socket) => {
         recipients: newReceipients,
         sender: id,
         text,
+      });
+    });
+  });
+  socket.on("send-group-message", ({ recipients, text, groupName }) => {
+    recipients.forEach((recipient) => {
+      const newReceipients = recipients.filter((r) => r !== recipient);
+      newReceipients.push(id);
+      socket.broadcast.to(recipient).emit("receive-group-message", {
+        recipients: newReceipients,
+        sender: id,
+        text,
+        groupName,
       });
     });
   });
